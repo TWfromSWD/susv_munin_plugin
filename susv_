@@ -1,51 +1,86 @@
 #!/usr/bin/python
 
+#%# capabilites=suggest
+#%# capabilities=autoconf
+#%# family=auto
+
 import sys, getopt
 import subprocess
+import os.path
+import re
 
 
 def main(argv):
 
-  #opts, args = getopt.getopt(argv," ",["config"])
+  # susv hilfsprogramm
+  susv_executable = "/opt/susvd/susv"
+
+  # filename des scripts ermitteln
+  file = re.search( ".*_(.*)", sys.argv[0] )
+
+  if file:
+    value_group = file.group(1)
 
   for opt in argv:
     if opt == 'config':
-      print "multigraph Currents"
-      print "graph_title susv Currents"
-      print "graph_vlabel mA"
-      print "graph_category sensors"
-      print "battery_current.label Battery Current"
-      print "line_current.label Line Current"
-      print
-      print "multigraph Voltages"
-      print "graph_category sensors"
-      print "graph_title susv Voltage"
-      print "graph_vlabel V"
-      print "voltage.label Voltage"
-      print
-      print "multigraph Battery"
-      print "graph_category sensors"
-      print "graph_title susv Battery Capacity"
-      print "graph_vlabel %"
-      print "battery_capacity.label Battery Capacity"
+      if value_group == 'currents':
+        print "multigraph susv_currents"
+        print "graph_title susv Currents"
+        print "graph_vlabel mA"
+        print "graph_category sensors"
+        print "battery_current.label Battery Current"
+        print "line_current.label Line Current"
+      elif value_group == 'voltages':
+        print "multigraph susv_voltages"
+        print "graph_category sensors"
+        print "graph_title susv Voltage"
+        print "graph_vlabel V"
+        print "voltage.label Voltage"
+      elif value_group == 'battery':
+        print "multigraph susv_battery"
+        print "graph_category sensors"
+        print "graph_title susv Battery Capacity"
+        print "graph_vlabel %"
+        print "battery_capacity.warning min:20"
+        print "battery_capacity.label Battery Capacity"
+      sys.exit()
+    elif opt == 'suggest':
+      print "currents"
+      print "voltages"
+      print "battery"
+      sys.exit()
+    elif opt == 'autoconf':
+      if os.path.isfile(susv_executable):
+        print "yes"
+      else:
+        print "no ( " + susv_executable + " not found )"
       sys.exit()
 
-  p = subprocess.Popen(["/opt/susvd/susv", "-capbat", "0"], stdout=subprocess.PIPE)
-  out, err = p.communicate()
-  batdata = out.splitlines()
+  if value_group == 'battery':
+    p = subprocess.Popen([susv_executable, "-capbat", "0"], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    batdata = out.splitlines()
 
-  p = subprocess.Popen(["/opt/susvd/susv", "-pwrbat", "0"], stdout=subprocess.PIPE)
-  out, err = p.communicate()
-  pwrbat = out.splitlines()
+    print "battery_capacity.value " + batdata[0]
+  elif value_group == 'voltages':
+    p = subprocess.Popen([susv_executable, "-capbat", "0"], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    batdata = out.splitlines()
 
-  p = subprocess.Popen(["/opt/susvd/susv", "-pwrext", "0"], stdout=subprocess.PIPE)
-  out, err = p.communicate()
-  pwrext = out.splitlines()
+    print "voltage.value " + batdata[1]
+  elif value_group == 'currents':
+    p = subprocess.Popen([susv_executable, "-pwrbat", "0"], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    pwrbat = out.splitlines() 
 
-  print "battery_capacity.value " + batdata[0]
-  print "voltage.value " + batdata[1]
-  print "line_current.value " + pwrext[0]
-  print "battery_current.value " + pwrbat[0]
+    p = subprocess.Popen([susv_executable, "-pwrext", "0"], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    pwrext = out.splitlines() 
+
+    print "line_current.value " + pwrext[0]
+    print "battery_current.value " + pwrbat[0]
+
+  sys.exit()
 
 if __name__ == "__main__":
    main(sys.argv[1:])
