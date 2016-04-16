@@ -1,0 +1,51 @@
+#!/usr/bin/python
+
+import sys, getopt
+import subprocess
+
+
+def main(argv):
+
+  #opts, args = getopt.getopt(argv," ",["config"])
+
+  for opt in argv:
+    if opt == 'config':
+      print "multigraph Currents"
+      print "graph_title susv Currents"
+      print "graph_vlabel mA"
+      print "graph_category sensors"
+      print "battery_current.label Battery Current"
+      print "line_current.label Line Current"
+      print
+      print "multigraph Voltages"
+      print "graph_category sensors"
+      print "graph_title susv Voltage"
+      print "graph_vlabel V"
+      print "voltage.label Voltage"
+      print
+      print "multigraph Battery"
+      print "graph_category sensors"
+      print "graph_title susv Battery Capacity"
+      print "graph_vlabel %"
+      print "battery_capacity.label Battery Capacity"
+      sys.exit()
+
+  p = subprocess.Popen(["/opt/susvd/susv", "-capbat", "0"], stdout=subprocess.PIPE)
+  out, err = p.communicate()
+  batdata = out.splitlines()
+
+  p = subprocess.Popen(["/opt/susvd/susv", "-pwrbat", "0"], stdout=subprocess.PIPE)
+  out, err = p.communicate()
+  pwrbat = out.splitlines()
+
+  p = subprocess.Popen(["/opt/susvd/susv", "-pwrext", "0"], stdout=subprocess.PIPE)
+  out, err = p.communicate()
+  pwrext = out.splitlines()
+
+  print "battery_capacity.value " + batdata[0]
+  print "voltage.value " + batdata[1]
+  print "line_current.value " + pwrext[0]
+  print "battery_current.value " + pwrbat[0]
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
