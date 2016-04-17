@@ -12,16 +12,17 @@ import re
 
 def main(argv):
 
-  # susv hilfsprogramm
+  # susv client executable
   susv_executable = "/opt/susvd/susv"
 
-  # filename des scripts ermitteln
+  # get the full name of the calling script
   file = re.search( ".*_(.*)", sys.argv[0] )
 
   if file:
     value_group = file.group(1)
 
   for opt in argv:
+    # output the configuration data
     if opt == 'config':
       if value_group == 'currents':
         print "graph_title susv Currents"
@@ -48,12 +49,14 @@ def main(argv):
 
       sys.exit()
 
+    # output the suggestions for symlink names
     elif opt == 'suggest':
       print "currents"
       print "voltages"
       print "battery"
       sys.exit()
 
+    # autoconf information
     elif opt == 'autoconf':
       if os.path.isfile(susv_executable):
         print "yes"
@@ -61,6 +64,7 @@ def main(argv):
         print "no ( " + susv_executable + " not found )"
       sys.exit()
 
+  # otherwise output the data depending on the script symlink name
   if value_group == 'battery':
     p = subprocess.Popen([susv_executable, "-capbat", "0"], stdout=subprocess.PIPE)
     out, err = p.communicate()
@@ -82,11 +86,11 @@ def main(argv):
   elif value_group == 'currents':
     p = subprocess.Popen([susv_executable, "-pwrbat", "0"], stdout=subprocess.PIPE)
     out, err = p.communicate()
-    pwrbat = out.splitlines() 
+    pwrbat = out.splitlines()
 
     p = subprocess.Popen([susv_executable, "-pwrext", "0"], stdout=subprocess.PIPE)
     out, err = p.communicate()
-    pwrext = out.splitlines() 
+    pwrext = out.splitlines()
 
     print "input_current.value " + pwrext[0]
     print "battery_current.value " + pwrbat[0]
