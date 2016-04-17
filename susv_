@@ -24,31 +24,38 @@ def main(argv):
   for opt in argv:
     if opt == 'config':
       if value_group == 'currents':
-        print "multigraph susv_currents"
+        #print "multigraph susv_currents"
         print "graph_title susv Currents"
         print "graph_vlabel mA"
         print "graph_category sensors"
         print "battery_current.label Battery Current"
         print "line_current.label Line Current"
+
       elif value_group == 'voltages':
-        print "multigraph susv_voltages"
+        #print "multigraph susv_voltages"
         print "graph_category sensors"
         print "graph_title susv Voltage"
         print "graph_vlabel V"
         print "voltage.label Voltage"
+
       elif value_group == 'battery':
-        print "multigraph susv_battery"
+        #print "multigraph susv_battery"
         print "graph_category sensors"
         print "graph_title susv Battery Capacity"
         print "graph_vlabel %"
-        print "battery_capacity.warning min:20"
+        print "graph_args -l 0"
+        print "graph_scale no"
+        print "battery_capacity.warning 20:"
         print "battery_capacity.label Battery Capacity"
+
       sys.exit()
+
     elif opt == 'suggest':
       print "currents"
       print "voltages"
       print "battery"
       sys.exit()
+
     elif opt == 'autoconf':
       if os.path.isfile(susv_executable):
         print "yes"
@@ -62,12 +69,14 @@ def main(argv):
     batdata = out.splitlines()
 
     print "battery_capacity.value " + batdata[0]
+
   elif value_group == 'voltages':
     p = subprocess.Popen([susv_executable, "-capbat", "0"], stdout=subprocess.PIPE)
     out, err = p.communicate()
     batdata = out.splitlines()
 
     print "voltage.value " + batdata[1]
+
   elif value_group == 'currents':
     p = subprocess.Popen([susv_executable, "-pwrbat", "0"], stdout=subprocess.PIPE)
     out, err = p.communicate()
