@@ -82,6 +82,7 @@ def main(argv):
     voltext = out.splitlines()
 
     print "external_voltage.value " + voltext[0]
+    print "battery_voltage.value "+ batdata[1]
 
   elif value_group == 'currents':
     p = subprocess.Popen([susv_executable, "-pwrbat", "0"], stdout=subprocess.PIPE)
