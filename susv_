@@ -24,22 +24,20 @@ def main(argv):
   for opt in argv:
     if opt == 'config':
       if value_group == 'currents':
-        #print "multigraph susv_currents"
         print "graph_title susv Currents"
         print "graph_vlabel mA"
         print "graph_category sensors"
         print "battery_current.label Battery Current"
-        print "line_current.label Line Current"
+        print "input_current.label Input Current"
 
       elif value_group == 'voltages':
-        #print "multigraph susv_voltages"
         print "graph_category sensors"
-        print "graph_title susv Voltage"
+        print "graph_title susv Voltages"
         print "graph_vlabel V"
-        print "voltage.label Voltage"
+        print "battery_voltage.label Battery Voltage"
+        print "external_voltage.label Input Voltage"
 
       elif value_group == 'battery':
-        #print "multigraph susv_battery"
         print "graph_category sensors"
         print "graph_title susv Battery Capacity"
         print "graph_vlabel %"
@@ -75,7 +73,11 @@ def main(argv):
     out, err = p.communicate()
     batdata = out.splitlines()
 
-    print "voltage.value " + batdata[1]
+    p = subprocess.Popen([susv_executable, "-vin", "0"], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    voltext = out.splitlines()
+
+    print "external_voltage.value " + voltext[0]
 
   elif value_group == 'currents':
     p = subprocess.Popen([susv_executable, "-pwrbat", "0"], stdout=subprocess.PIPE)
@@ -86,7 +88,7 @@ def main(argv):
     out, err = p.communicate()
     pwrext = out.splitlines() 
 
-    print "line_current.value " + pwrext[0]
+    print "input_current.value " + pwrext[0]
     print "battery_current.value " + pwrbat[0]
 
   sys.exit()
