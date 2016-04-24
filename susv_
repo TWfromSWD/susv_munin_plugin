@@ -45,6 +45,7 @@ def main(argv):
         print "graph_args -l 0"
         print "graph_scale no"
         print "battery_capacity.warning 20:"
+        print "battery_capacity.draw AREA"
         print "battery_capacity.label Battery Capacity"
 
       sys.exit()
