@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-#%# capabilites=suggest
+#%# capabilities=suggest
 #%# capabilities=autoconf
 #%# family=auto
 
